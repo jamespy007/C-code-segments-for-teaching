@@ -1,0 +1,1871 @@
+#define _CRT_SECURE_NO_WARNINGS
+#define SIZE 20
+#define M_DIM 3
+#define N_DIM 5
+#define P_DIM 4
+#define LEN sizeof(student)
+#include <stdio.h>
+#include <math.h>
+#include <string.h>
+#include <stdlib.h>
+
+
+/* extra example: exchange between lowercase and uppercase
+main()
+{
+	char ch,str1[SIZE],str2[SIZE];
+	int i,len;
+
+	printf("Enter a string (less than 20 characters) please.\n");
+	gets(str1);
+	len = strlen(str1);
+	
+	
+	for (i = 0; i < len; i++)
+	{
+		ch = str1[i];
+		if ((ch >= 'a') && (ch <= 'z'))
+			ch = ch - 32;
+		else if ((ch >= 'A') && (ch <= 'Z'))
+			ch = ch + 32;
+		str2[i] = ch;
+	}
+	str2[i] = '\0';
+//	printf("%d,%d\n", sizeof(str1), sizeof(str2));
+	printf("The original string is: %s\n", str1);
+    printf("The result string is:   %s\n", str2);
+
+}
+*/
+
+/*CHAPTER 10 FILE*/
+/*
+struct Client
+{
+	int account_num;
+	char name[20];
+	float balance;
+};
+*/
+/*/ example of fwrite() fseek() fread()random access file(binary file) (文件中的记录具有固定长度)
+///initializing file with 100 blank Client info-----fwrite()
+main()
+{
+	int i;
+	struct Client blank_client = { 0,"",0.0 };
+	FILE* fptr;
+
+    
+
+	if ((fptr = fopen("clientsinfo.dat", "w")) == NULL)
+		printf("File can not be opened!\n");
+	else
+	{
+		for (i = 1; i <= 100; i++)
+			fwrite(&blank_client, sizeof(struct Client),1, fptr);
+		fclose(fptr);
+		printf("100 blank_client were write to file clientsinfo.dat.\n");
+	}
+}
+*/
+	
+/* write to file 'clientsinfo.dat' randomly!------fwrite()  fseek()
+main()
+{
+	int i;
+	struct Client blank_client;
+	FILE* fptr;
+
+	if ((fptr = fopen("clientsinfo.dat", "r+")) == NULL)
+		printf("File can not be opened!\n");
+	else
+	{
+		printf("Enter account_num (between 1 to 100) and 0 to end input!\n#");
+		scanf("%d", &blank_client.account_num);
+
+		while (blank_client.account_num != 0)
+		{
+			printf("Please enter the other two client info: name , balance in sequence.\n");
+			scanf("%s%f",blank_client.name,&blank_client.balance);
+			//find the position to write to file (SEEK_SET  SEEK_CUR  SEEK_END)
+			fseek(fptr, (blank_client.account_num - 1) * sizeof(struct Client), SEEK_SET);
+			fwrite(&blank_client, sizeof(struct Client), 1, fptr);
+
+			printf("Enter account_num (between 1 to 100) and 0 to end input!\n#");
+			scanf("%d", &blank_client.account_num);
+
+		}
+	}
+	fclose(fptr);
+
+	return 0;
+}
+*/
+
+/*// read clientinfo from file-----fread()
+main()
+{
+	
+	struct Client client ;
+	FILE* fptr;
+	if ((fptr = fopen("clientsinfo.dat", "r")) == NULL)
+		printf("File can not be opened!\n");
+	else
+	{
+		printf("%-16s%-16s%-10s\n","Account_num","Name","Balance");
+
+        while (!feof(fptr))
+		{
+			fread(&client, sizeof(struct Client), 1, fptr);
+
+			if(client.account_num!=0)
+				printf("%-16d%-16s%-10.2f\n", client.account_num,client.name,client.balance);
+		}
+	
+	}
+	fclose(fptr);
+
+	return 0;
+}
+*/
+
+/*// fopen() fprintf() fflush()
+//( fprintf() fscanf() )sequential file（ASCii file）
+main()
+{
+	int account_num = 0;
+	char name[20] = "";
+	float balance = 0.0;
+
+	FILE* fptr;
+
+
+	if ((fptr = fopen("clients.txt", "w")) == NULL)
+//	if ((fptr = fopen("clients.dat", "w")) == NULL)
+//	if ((fptr = fopen("clients.dat", "a")) == NULL)
+		printf("File can not be opened or created!\n");
+	else
+	{
+		printf("please enter the account_number, name, balance. Enter EOF to end input!\n\n");
+		printf("#");
+		scanf("%d %s %f", &account_num, name, &balance);
+	//  while (!feof(stdin))
+		while (!feof(fptr))
+		{
+			fprintf(fptr, "%d\t%s\t%.2f\n", account_num, name, balance);
+			//fflush(fptr) write buffering area data into file and cleaning the buffering area
+			fflush(fptr);
+
+			printf("#");
+			scanf("%d %s %f", &account_num, name, &balance);
+		}
+
+		fclose(fptr);
+	}
+
+	return 0;
+}
+*/
+
+/*// fscanf()
+main()
+{
+	int account_num = 0;
+	char name[20] = "";
+	float balance = 0.0;
+
+	FILE* fptr;
+
+	if ((fptr = fopen("clients.dat", "r")) == NULL)
+		printf("File can not be opened or created!\n");
+	else
+	{
+		printf("%-20s%-13s%s\n","Account_Number","Client_Name","Balance" );
+
+		fscanf(fptr, "%d%s%f", &account_num, name, &balance);
+		while (!feof(fptr))
+		{
+			printf("%-20d%-13s%.2f\n", account_num, name, balance);
+			fscanf(fptr, "%d%s%f", &account_num, name, &balance);
+		}
+        fclose(fptr);
+	}
+	return 0;
+}
+*/
+
+/*CHAPTER 9 STRUCT / UNION/ USER DEFINE TYPE */
+/*enum example 2
+enum color{red,green, blue,yellow,white};
+
+main()
+{
+	enum color i,j,k,choice;
+	int loop = 1,n=0;
+
+	for (i = red; i <= white; i++)
+	
+		for (j = red; j <= white; j++)
+			for (k = red; k <= white; k++)
+			{
+				if ((i != j) && (j != k) && (k != i))
+				{
+					n++;
+					printf("%d:\t", n);
+					for (loop = 1; loop <= 3; loop++)
+					{
+						switch (loop)
+						{
+						case 1: choice = i;
+							break;
+						case 2: choice = j;
+							break;
+						case 3: choice = k;
+							break;
+						default:
+							break;
+						}
+						switch (choice)
+						{
+						case red: printf("red\t");
+							break;
+						case green: printf("green\t");
+							break;
+						case blue: printf("blue\t");
+							break;
+						case yellow: printf("yellow\t");
+							break;
+						case white: printf("white\t");
+							break;
+						default:
+							break;
+						}
+					}
+					printf("\n");
+				}
+				
+			}
+	printf("\nThere are totally %d composite methods.\n", n);
+}
+*/
+/* enumarate example 1
+enum week{MONDAY=1,TUESDAY, WEDNESDAY,THURSDAY,FRIDAY,SATURDAY,SUNDAY};
+
+main()
+{
+	enum week weeks;
+	//int i;
+
+	for (weeks = MONDAY; weeks <= SUNDAY; weeks++)
+	{
+		switch (weeks)
+		{
+	    case MONDAY: printf("星期一 ： weekday\n");
+	//	case 1: printf("星期一 ： weekday\n");
+			break;
+		case TUESDAY:printf("星期二 ： weekday\n");
+			break;
+		case WEDNESDAY:printf("星期三 ： weekday\n");
+			break;
+		case THURSDAY:printf("星期四 ： weekday\n");
+			break;
+		case FRIDAY:printf("星期五 ： weekday\n");
+			break;
+		case SATURDAY:printf("星期六 ： weekend\n");
+			break;
+		case SUNDAY:printf("星期天 ： weekend\n");
+			break;
+		default:
+			break;
+		}
+	}
+		
+}
+*/
+/* union example
+struct
+{
+	int number;
+	char name[10];
+	char job; //value will be either 'T' (for teather) or 'S'(for student)
+	union
+	{
+		int class;
+		char position[20];
+	}category;
+}person[2];
+
+main()
+{
+	int i=0;
+	
+	for (; i < 2; i++)
+	{
+		printf("Now you can input info of a person as sequence: number, name, job\n");
+		scanf("%d %s %c", &person[i].number, person[i].name, &person[i].job);
+		
+		if ((person[i].job == 'T')|| (person[i].job == 't'))
+		{
+			printf("please input position of the Teather:\n");
+            scanf("%s", person[i].category.position);
+		}
+	    else if ((person[i].job == 'S')|| (person[i].job == 's'))
+		{
+			printf("please input class of the Student:\n");
+			scanf("%d", &person[i].category.class);
+		}
+		else
+			printf("The input job info is error!\n");
+
+	}
+	
+	printf("#number      name       job(T/S)     position(class)\n");
+
+	for (i = 0; i < 2; i++)
+	{
+		if ((person[i].job == 'S') || (person[i].job == 's'))
+			printf("%-10d%-20s%-10c%-10d\n", person[i].number, person[i].name, person[i].job, person[i].category.class);
+		else if ((person[i].job == 'T') || (person[i].job == 't'))
+			printf("%-10d%-20s%-10c%-10s\n", person[i].number, person[i].name, person[i].job, person[i].category.position);
+
+	}
+	return 0;
+}
+*/
+/* linked-list example
+typedef struct stu_info
+{
+	int  sno;
+	char sname[20];
+	int  age;
+	char dept[10];
+	struct stu_info *next;
+}student;
+main()
+{
+	student* creat_from_head( );
+//	student* creat_from_tail();
+
+//	student s1 = {10001,"Jeramy",19,"CS",NULL}, s2, * ptrs;
+//	scanf("%d\n%s\n%d\n%s", &s2.sno, s2.sname, &s2.age, s2.dept);
+
+//	ptrs = &s2;
+//	s2.next = &s1;
+
+//	while (ptrs != NULL)
+//	{
+//		printf(" %-10d %-10s %-4d %-10s \n\n",
+//			ptrs->sno, ptrs->sname, ptrs->age, ptrs->dept);
+
+//		ptrs = ptrs->next;
+//	}
+
+
+
+    student* s_ptr = creat_from_head( );
+	student* s_ptr = creat_from_tail();
+
+	while (s_ptr != NULL)
+	{
+		printf(" %-10d %-20s %-4d %-10s \n\n",s_ptr->sno, s_ptr->sname, s_ptr->age, s_ptr->dept);
+		s_ptr = s_ptr->next;
+	}
+
+}
+/*
+student* creat_from_tail( )
+{
+	int flag, n=0;
+	student* temp, * head, * tail;
+	head = tail = NULL;
+	
+	printf("input char '1' for record student info, and char '0' for ending.\n\n");
+	scanf("%d", &flag);
+	if (flag == 0)
+		return NULL;
+	else
+	{
+		while (flag)
+		{
+			temp = (student*)malloc(LEN);
+			printf("Now input student info as sequence: sno  sname  age  dept.\n\n");
+			scanf("%d%s%d%s", &temp->sno, temp->sname, &temp->age, temp->dept);
+			temp->next = NULL;
+
+			if (n == 0)
+			{
+				head = tail = temp;
+				n++;
+				flag = 0;
+			}
+			else
+			{
+				tail->next = temp;
+				tail = temp;
+				n++;
+				flag = 0;
+			}
+			printf("\ninput char '1' for continue record next student info and char '0' for ending.\n");
+			scanf("%d", &flag);
+		}
+	}
+	
+	printf("\nThere are totally %d students in the linked-list!\n", n);
+	printf("\n--------------------------------------------------------\n");
+	return head;
+}
+
+
+student* creat_from_head()
+{
+	int flag, n = 0;
+	student* temp, * head, * tail;
+	head = tail = NULL;
+
+	printf("input char '1' for record student info, and char '0' for ending.\n\n");
+	scanf("%d", &flag);
+	if (flag == 0)
+		return NULL;
+	else
+	{
+		while (flag)
+		{
+			temp = (student*)malloc(LEN);
+			printf("Now input student info as sequence: sno  sname  age  dept.\n\n");
+			scanf("%d%s%d%s", &temp->sno, temp->sname, &temp->age, temp->dept);
+			temp->next = NULL;
+
+			if (n == 0)
+			{
+				head = tail = temp;
+				n++;
+				flag = 0;
+			}
+			else
+			{
+				temp->next = head;
+				head = temp;
+				n++;
+				flag = 0;
+			}
+			printf("\ninput char '1' for continue record next student info and char '0' for ending.\n");
+			scanf("%d", &flag);
+		}
+	}
+
+	printf("\nThere are totally %d students in the linked-list!\n", n);
+	printf("\n--------------------------------------------------------\n");
+	return head;
+}
+*/
+/*
+typedef struct 
+{
+	char  book_name[20];
+	int pub_year;
+	char description[20];
+}book_info;
+
+struct Date
+{
+	int day;
+	int month;
+	int year;
+};
+struct Student
+{
+	int s_Number;
+	int age;
+	char* name;
+	struct Date birthday;
+	char* address;
+};
+
+main()
+{
+	book_info book1;
+	scanf("%s%d%s", book1.book_name,&book1.pub_year,book1.description);
+	printf("%s\n%d\n%s\n", book1.book_name, book1.pub_year, book1.description);
+}
+*/
+/*struct example1
+main()
+{
+	struct Student s1= {1000,18,"Zhang san",25,11,2003,"lanzhou" }, s2,s3;
+
+	
+	s2.s_Number = 1001;
+	s2.age = 19;
+	s2.name = "Li si";
+	s2.birthday.day = 12;
+	s2.birthday.month = 2;
+	s2.birthday.year = 2005;
+	s2.address = "Shang hai";
+
+ 	s3 = s2;
+
+
+	
+	printf("Number     Age         Name      Birthday      Address          \n");
+	printf("-----------------------------------------------------------\n");
+
+	printf(" %-10d %-8d %-10s %-4d %-2d %-5d %-15s          \n\n",
+	s1.s_Number, s1.age, s1.name, s1.birthday.year,s1.birthday.month, s1.birthday.day,s1.address);
+	printf(" %-10d %-8d %-10s %-4d %-2d %-5d %-15s          \n\n",
+	s2.s_Number, s2.age, s2.name, s2.birthday.year,s2.birthday.month, s2.birthday.day, s2.address);
+	
+	printf(" %-10d %-8d %-10s %-4d %-2d %-5d %-15s          \n\n",
+	s3.s_Number, s3.age, s3.name, s3.birthday.year, s3.birthday.month, s3.birthday.day, s3.address);
+}
+*/
+/*CHAPTER 8 Pointer*/
+/*/dynamic memory allocation(malloc()  calloc(), realloc())
+main()
+{
+	int* ptr,i;
+	char* ptr1;
+
+	ptr = (int*)malloc(5 * sizeof(int));
+
+	ptr[0] = 1;
+	for (i = 1; i < 5; i++)
+		*(ptr + i) = i * 2;
+
+	printf("%p\n\n", ptr);
+
+	for (i = 0; i < 5; i++)
+		printf("%d\n\n", *(ptr + i));
+
+	ptr1 = (char*)calloc(30, sizeof(char));
+	printf("%p\n\n", ptr1);
+
+	ptr1 = "I love this game!";
+	puts(ptr1);
+
+	realloc(ptr, sizeof(char));
+	printf("%p\n\n", ptr);
+	
+
+}
+*/
+/*/arguments of main()
+int main(int argc, char* argv[])
+{
+	int i = 0;
+	printf("argc=%d\n\n",argc);
+	
+	while (i < argc)
+	{
+		printf("%s\n\n", *(argv+i));
+		i++;
+	}
+	return 0;
+}
+*/
+/*/ pointer which point to a pointer(**)
+main()
+{
+	int a = 96;
+	int* pa, ** ppa;
+	pa = &a;
+	ppa = &pa;
+	printf("variable a=%d\n\n", a);
+	printf("the address of variabe a is: %p\n\n", pa);
+	printf("the address of pointer-variabe pa is: %p\n\n", ppa);
+	printf("-------------------------------------------\n\n");
+	printf("we can got the value of a by directly access variabe a = %d\n\n", a);
+	printf("we can got the value of a by indirectly access  *pa = %d\n\n", *pa);
+	printf("we can got the value of a by indirectly access **ppa = %d\n\n", **ppa);
+}
+*/
+/*/ the application example of pointer-array
+main()
+{
+	void printer(char* arr[], int n);
+	void sort(char* arr[], int n);
+
+	char* country[] = { "CHINA","UNITED STATE","DENMARK","ITALY" };
+
+    char* string=country[1];
+	printf("%s\n\n",string);
+
+	printer(country, 4);
+	sort(country, 4);
+	printf("-----------------------------\n");
+	printer(country, 4);
+
+}
+void printer(char* arr[],int n)
+{
+	int i;
+	for (i = 0; i < n; i++)
+		printf("%s\n\n", arr[i]);
+}
+void sort(char* arr[], int n)
+{
+	int i, j, k;
+	char* temp;
+	for (i = 0; i < n; i++)
+	{
+		k = i;
+		for (j = i + 1; j < n; j++)
+			if (strcmp(arr[k] , arr[j])>0)
+				k = j;
+		if (k != i)
+		{
+			temp = arr[i];
+			arr[i] = arr[k];
+			arr[k] = temp;
+		}
+	}
+}
+*/
+/*/function pointer as parameter
+main()
+{
+	int x = 5, y = 8;
+
+	void multi_func(int a, int b, int (*pf)(int, int));
+	int max_of_2_integer(int a, int b);
+	int min_of_2_integer(int a, int b);
+
+	multi_func(x, y, max_of_2_integer);
+	multi_func(x, y, min_of_2_integer);
+}
+void multi_func(int a, int b, int (*pf)(int, int))
+{
+	int result;
+	result = (*pf)(a, b);
+	printf("%d\n", result);
+}
+
+int max_of_2_integer(int a, int b)
+{
+	if (a > b)
+		return a;
+	else
+		return b;
+}
+int min_of_2_integer(int a, int b)
+{
+	if (a < b)
+		return a;
+	else
+		return b;
+}
+*/
+/*/function pointer example
+main()
+{
+	int flag, x = 3, y = 6;
+	int (*func1)(int, int);
+	float (*func2)(int, int);
+
+	int max_of_2_integer(int a, int b);
+	int min_of_2_integer(int a, int b);
+	float average_of_2_integer(int a, int b);
+
+	printf("INPUT a number between  1 , 2 and 3(your choice), 1 for max, 2 for min, 3 for average:\n ");
+	scanf("%d", &flag);
+
+	if (flag == 1)
+	{
+		func1 = max_of_2_integer;
+		printf("The max of 2 integer is: %d\n", (*func1)(x, y));
+	}
+	else if (flag == 2)
+	{
+		func1 = min_of_2_integer;
+		printf("The min of 2 integer is: %d\n", func1(x, y));
+	}
+	else if (flag == 3)
+	{
+		func2 = average_of_2_integer;
+		printf("The average of 2 integer is: %.2f\n", func2(x, y));
+	}
+	else
+		printf("YOU MUST input a number between  1 , 2 and 3. Try to run the prog again!");
+}
+int max_of_2_integer(int a, int b)
+{
+	if (a > b)
+		return a;
+	else
+		return b;
+}
+int min_of_2_integer(int a, int b)
+{
+	if (a < b)
+		return a;
+	else
+		return b;
+}
+float average_of_2_integer(int a, int b)
+{
+     return (a+b)/2.0;
+}
+*/
+/*/数组名与指针变量作为函数参数（实参）
+main()
+{
+	int i,*pa,a[8] = { 0,1,2,3,4,5,6,7 };
+	pa = a;
+	void reverse_display1(int* ptr, int n);
+	void reverse_display2(int arr[], int n);
+
+	printf("The sequnce of array a before reverse:\n");
+	for (i = 0; i < 8; i++)
+		printf("%d   ", a[i]);
+
+	
+	printf("\nThe sequnce of array a after involk reverse_display1:\n");
+	reverse_display1(pa, 8);
+	for (i = 0; i < 8; i++)
+		printf("%d   ", a[i]);
+	
+	printf("\nThe sequnce of array a after involk reverse_display2:\n");
+	reverse_display2(a, 8);
+	for (i = 0; i < 8; i++)
+		printf("%d   ", a[i]);
+
+}
+
+void reverse_display1(int* ptr, int n)
+{
+	int temp, i = 0, j = n-1, mid = (n - 1) / 2;
+	for (; i <= mid; i++, j--)
+	{
+		temp = *(ptr + i);
+		*(ptr + i) = *(ptr + j);
+		*(ptr + j) = temp;
+	}
+}
+
+void reverse_display2(int arr[], int n)
+{
+	int temp, i = 0, j = n-1, mid = (n - 1) / 2;
+	for (; i <= mid; i++, j--)
+		{
+			temp = arr[i];
+			arr[i] = arr[j];
+			arr[j] = temp;
+		}
+}
+*/
+/*/通过指针、数组名引用(一维)数组元素
+main()
+{
+	int i,a[5] = { 2,3,5,7,11 };
+	int* ptr;
+
+	for (i = 0; i < 5; i++)
+		printf("%d-----", a[i]);
+	printf("\n\n");
+
+	for (i = 0; i < 5; i++)
+		printf("%d---", *(a+i));
+	printf("\n\n");
+
+	for (ptr = a; ptr<a+5; ptr++)
+		printf("%d-", *ptr);
+	printf("\n\n");
+
+		
+}
+*/
+/*/ Output in decrease-order of two number a,b
+main()
+{
+	int a = 3, b = 4, * pa, * pb;
+	pa = &a;
+	pb = &b;
+
+	void swap_by_value(int n1, int n2);
+	void swap_pointer(int* ptr1, int* ptr2);
+	void swap_by_pointer(int* ptr1, int* ptr2);
+
+	printf("The order before sorting is: a=%d b=%d\n\n",a, b);
+	if (a < b)
+		//arguments a and b were NOT changed
+		swap_by_value(a, b);
+	    printf("The order after swap_by_value is: a=%d  b=%d\n\n",a, b);
+		//arguments a and b were NOT changed
+		swap_pointer(pa, pb);
+		printf("The order after swap_pointer is: a=%d  b=%d\n\n", a, b);
+		//arguments a and b were changed
+		swap_by_pointer(pa, pb);
+		printf("The order after swap_by_pointer is: a=%d  b=%d\n\n", a, b);
+
+
+}
+
+void swap_by_value(int n1, int n2)
+{
+	int temp;
+	temp = n1;
+	n1 = n2;
+	n2 = temp;
+}
+void swap_pointer(int* ptr1, int* ptr2)
+{
+	int *temp;
+	temp = ptr1;
+	ptr1 = ptr2;
+	ptr2 = temp;
+}
+void swap_by_pointer(int* ptr1, int* ptr2)
+{
+	int temp;
+	temp = *ptr1;
+	*ptr1 = *ptr2;
+	*ptr2 = temp;
+}
+*/
+/* use pointer as parameters of function
+
+main()
+{
+	int a[3][4] = { 1,2,3,4,5,6,7,8,9,10,11,12 };
+	//指针变量为参数
+    float average_of_whole_record(int *p, int n);
+    //指向数组的指针为参数
+	int sum_of_a_student_record(int (*p)[4]);
+
+    printf("%.2f\n", average_of_whole_record(*a, 12));
+    printf("%.2f\n", average_of_whole_record(a, 12));
+	printf("%.2f\n", average_of_whole_record(&a, 12));
+	printf("%.2f\n", average_of_whole_record(a[0], 12));
+	printf("%.2f\n", average_of_whole_record(&a[0][0], 12));
+	printf("\n-------------------------------------------\n");
+    printf("%d\n", sum_of_a_student_record(a + 1));
+	printf("%d\n", sum_of_a_student_record(*(a + 1)));
+	printf("%d\n", sum_of_a_student_record(&a[2]));
+	printf("%d\n", sum_of_a_student_record(a[2]));
+	printf("%d\n", sum_of_a_student_record(&a));
+    printf("%d\n", sum_of_a_student_record(a));
+
+    return 0;
+}
+
+float average_of_whole_record(int *p, int n)
+{
+	int i;
+	float ave = 0;
+	for (i = 0; i < n; i++)
+		ave += *(p++);
+	ave = ave / n;
+	return ave;
+}
+
+int sum_of_a_student_record(int(*p)[4])
+{
+	int i, summation = 0;
+	for (i = 0; i < 4; i++)
+		summation += *(*p + i);
+	return summation;
+}
+*/
+/*/ pointer and array(2-dimension), pointer of row ,pointer of column(thus pointer of element)
+main()
+{
+	int a[3][4] = { 1,2,3,4,5,6,7,8,9,10,11,12 };
+
+	//test1：数组名为数组首元素地址,（*二维数组名）为数组的行地址,(&二维数组名)为取数组的地址 (三者值相等，但意义不同)
+	printf("%p,%p,%p\n", a, *a, &a);
+//	printf("sizeof(a):%d\n", sizeof(a));
+//	printf("sizeof(*a):%d\n", sizeof(*a));
+//	printf("sizeof(&a):%d\n", sizeof(&a));
+	printf("\n");
+	//test2：行地址的表示形式(将二维数组看作由一行行的一维数组构成)
+    printf("%p,%p,%p,%p\n", a[1], &a[1], *(a + 1), a + 1);
+	printf("\n");
+	//test3： 数组元素的地址(列地址)
+	printf("%p,%p\n", &a[2][0], *(a + 2) + 0);
+	printf("\n");
+	//test4： 数组元素的引用的方式：下标直接引用，行地址的间接引用（*行地址,仅限于每行首元素），列地址的间接引用（*列地址）
+	printf("%d,%d,%d,%d\n", a[1][0], *(*(a + 1)), *a[1] , *(*(a + 1) + 0));
+	printf("\n");
+	//
+	printf("%p\n", *&a[1]);
+
+	return 0;
+	
+
+}
+//*/
+/* pointer and array(1-dimension)
+main()
+{
+	int a = 5, array[5] = {1,2,3,4,5};
+
+	//指向整型变量的指针pa,ptr1,ptr2,ptr3 | 指向整型数组（长度为5）的指针 
+	int *pa, *ptr1, *ptr2,*ptr3, (*p_array)[5];
+
+	//取地址运算符 & 作用于变量，得到变量的地址
+	pa = &a;
+
+	//用数组名（数组的首个元素地址）初始化指针变量
+	ptr1 = array;
+
+	//用特定的数组元素地址初始化指针变量
+  //ptr2 = &array[3];
+	ptr2 = &array[0];
+	//用整个数组的地址来初始化指针变量（通过对数组名取地址，即：&数组名，得到指向数组的指针）
+	//（虽然： 整个数组的地址=数组首元素的地址，即：&array=array，但两者含义不同！）
+	//此处ptr3为指向数组的指针，而非指向某个数组元素！
+	ptr3 = &array;
+	
+	//用数组的地址（&数组名）来初始化指向数组的指针
+	p_array = &array;
+
+	//test1：验证指针变量pa的值与变量a的地址值是一致的
+	printf("the value of variable pa is: %o\n", pa);
+	printf("the address of variable a is: %o\n", &a);
+	printf("\n");
+	//test2: 用间接引用运算符* 作用于指针变量，得到该指针变量所指变量（内存单元）的值
+	printf("the value of *pa is:%d\n", *pa);
+	printf("the value of a is:%d\n", a);
+	printf("the value of *&a is:%d\n", *&a);
+	printf("the value of *ptr1 is:%d\n", *ptr1);
+	printf("the value of *ptr2 is:%d\n", *ptr2);
+	printf("\n");
+	//test3: 整个数组的地址=数组首元素的地址，即：&array=array
+	printf("%o\n", array);
+	printf("%o\n", &array);
+	printf("\n");
+	//test4: 验证，虽然：&array=array，但两者含义不同(通过间接引用运算符 * 进行验证)
+	// *&array可以理解为：先对数组名array取地址（得到数组的地址），然后再间接引用（得到数组名array本身）
+	printf("%o\n", *array);
+	printf("%o\n", *&array);
+	printf("\n");
+	//test5: 此时，ptr3与（*p_array）等价，都相当于数组名
+    printf("%d\n", ptr3[2]);
+	printf("%d\n", (*p_array)[2]);
+
+}
+*/
+/*CHAPTER 7 Function*/
+
+/* recursive function example 2
+//int step=0;
+main()
+{
+	int n;
+	void hanoi(int n, char X, char Y, char Z);
+	void move(char x, char y);
+
+	printf("input the number of plate: \n");
+	scanf("%d", &n);
+	hanoi(n, 'A', 'B', 'C');
+
+	return 0;
+
+}
+
+void hanoi(int n, char X, char Y, char Z)
+{	if (n == 1)
+		move(X, Z);
+	else
+	{
+		hanoi(n - 1, X, Z, Y);
+		move(X,Z);
+		hanoi(n - 1, Y, X, Z);
+	}
+}
+
+void move(char x, char y)
+{
+	static int step = 0;
+	//printf("from %c ---move to--> %c\n", x, y);
+	printf("step%d: from %c ---move to--> %c\n", ++step,x, y);
+}
+*/
+/*/*recursive function example 1
+main()
+{
+	int a;
+	int fact(int);
+	printf("input a positive number n to computer factory(n)\n ");
+	scanf("%d", &a);
+	printf("factory of %d is %d ", a, fact(a));
+
+	return 0;
+}
+//recursive function fact
+int fact(int n)
+{
+	if (n < 0)
+	{
+		printf("input error! you should input a positive number!\n");
+		return -1;
+	}
+	else if (n == 0 || n == 1)
+		return 1;
+	else
+		return n * fact(n - 1);
+}
+*/
+/*将十进制整数x转换为任意n进制整数（n<=16）并输出结果y（用递归函数实现）
+main()
+{
+	int a, Base,result;
+	int decimal_to_n_base(int x, int base);
+
+	scanf("%d %d", &a, &Base);
+	if (a >= Base)
+	{
+		result = decimal_to_n_base(a, Base);
+		printf("%d", result);
+	}
+	else
+		printf("%d", a);
+
+	return 0;
+}
+int decimal_to_n_base(int x,int base)
+{
+	
+	int sum = 0;
+	int flag = 0;
+	if ((x / base) > 0)
+	{
+		flag = 1;
+		sum = decimal_to_n_base((x / base), base);
+	}
+	if (flag)
+		return sum * 10 + (x % base);
+	else
+		return (x % base);
+}
+*/
+/*legend_pn
+main()
+{
+	int n;
+	double x,results;
+	double legend_pn(int n, double x);
+
+	scanf("%lf %d", &x, &n);
+	results = legend_pn(n, x);
+	printf("%.2lf", results);
+
+}
+double legend_pn(int n, double x)
+{
+	if (n == 0)
+		return 1.0;
+	else if (n == 1)
+		return x;
+	else
+		return(((double)2 * n - 1) * x - legend_pn(n - 1, x) - ((double)n - 1) * legend_pn(n - 2, x)) / n;
+}
+*/
+/*输入一个数字n，要求输出n每个数字字符，但每两个数字间空一个空格，最后一个数字后无空格。
+main()
+{
+	char str[SIZE];
+	void int_to_char(char str[]);
+	int_to_char(str);
+
+	return 0;
+}
+void int_to_char(char str[])
+{
+	int i,len;	
+	gets_s(str,SIZE);
+	len = strlen(str);
+	for (i = 0; i < len - 1; i++)
+		printf("%c ", str[i]);
+	printf("%c", str[len-1]);
+
+}
+*/
+/* use function to solve gcd lcm problem
+main()
+{
+	int gcd(int a, int b);
+	int lcm(int a, int b);
+	int x, y,gcd_,lcm_;
+	scanf("%d %d", &x, &y);
+	gcd_ = gcd(x, y);
+	lcm_ = lcm(x, y);
+	printf("gcd is:%d\nlcm is: %d", gcd_, lcm_);
+
+}
+
+int gcd(int a, int b)
+{
+	int temp1,temp2;
+	temp2 = a * b;
+	while (b > 0)
+	{
+		temp1 = a % b;
+		a = b;
+		b = temp1;
+	}
+
+	return a;
+}
+int lcm(int a, int b)
+{
+	return (a * b) / gcd(a, b);
+}
+*/
+/*/* is prime fuction
+main()
+{
+	int x, flag;
+	int prime(int);
+	scanf("%d", &x);
+	flag = prime(x);
+	printf("%d", flag);
+
+	return 0;
+}
+int prime(int a)
+{
+	int i;
+	int is_prime = 1;
+
+	for (i = 2; i <= sqrt(a); i++)
+	{
+		if (a % i != 0)
+			continue;
+		else
+		{
+			is_prime = 0;
+			break;
+		}
+	}
+	return is_prime;
+}
+*/
+/* transfer between paramters and arguments
+main()
+{
+	
+	int max(int x, int y);
+	int a=3, b=5, result;
+	printf("arguments before invoke funtion max: a=%d, b=%d\n", a, b);
+	result = max(a, b);
+	printf("the max number between a,b is: %d\n", result);
+	printf("arguments after invoke funtion max: a=%d, b=%d\n", a, b);
+}
+int max(int x, int y)
+{
+	printf("parameters  in funtion max: x=%d, y=%d\n", x, y);
+	if (x >= y)
+	{
+		x += 2;
+		printf("now param:x=%d\n", x);
+      return x;
+	}
+		
+	else
+	{
+		y -= 2;
+		printf("now param:y=%d\n", y);
+		return y;
+	}
+} 
+*/
+/*CHAPTER 6 ARRAY*/
+/*/输入一个长度为10的整数数组，将其中出现的素数首尾交换
+{
+	int prime(int p);
+	int i, j, a[10],temp;
+
+	for (i = 0; i < 10; i++)
+		scanf("%d", &a[i]);
+
+	for (i = 0, j = 9; i <= j; i++,j--)
+    {
+		while (prime(a[i]) == 0)
+			i++;
+		while (prime(a[j]) == 0)
+			j--;
+
+		if(i<j)
+		{
+			temp = a[i];
+			a[i] = a[j];
+			a[j] = temp;
+		}
+		
+	}
+
+	for (i = 0; i < 9; i++)
+		printf("%d ", a[i]);
+	printf("%d", a[9]);
+	return 0;
+}
+int prime(int p)
+{
+	int k=2,flag=1;
+	while (k <= sqrt(p))
+	{
+		if (p % k == 0)
+		{
+			flag = 0;
+			break;
+		}
+		k++;
+	}
+	return flag;
+}
+//*/
+/*/键盘输入一个长度为10数组，统计其中有多少不相同的数据
+{
+	int flag,i,j,a[10],num=1;
+
+	for (i = 0; i < 10; i++)
+		scanf("%d", &a[i]);
+	for (i = 1; i < 10; i++)
+	{
+		flag = 1;
+		for(j=0;j<i;j++)
+			if (a[j] == a[i])
+			{
+				flag = 0;
+				break;
+			}
+		if (flag)
+			num += 1;
+	}
+	printf("%d", num);
+
+	return 0;
+
+}
+*/
+/*/将两个字符串连接起来，不用strcat函数
+
+main()
+{
+	char str1[30], str2[10];
+	gets(str1);
+	gets(str2);
+	strcat(str1, str2);
+	puts(str1);
+	puts(str2);
+}
+/*main()
+{
+	char  str1[20],str2[20],strcat[40];
+	int i, j;
+	gets(str1);
+	gets(str2);
+
+	for (i = 0; str1[i]!='\0'; i++)
+		strcat[i] = str1[i];
+	strcat[i++] = ' ';
+	for (j = 0 ; str2[j] != '\0'; j++,i++)
+		strcat[i] = str2[j];
+	strcat[i] = '\0';
+
+	puts(strcat);
+
+	return 0;
+
+}
+*/
+/*char-array/gets()/puts()/string const/char*
+main()
+{
+	char str1[] = "I Love China!";
+	char str2[] = { 'I',' ','L','o','v','e',' ','C','h','i','n','a','!','\0' };
+
+	char str3[20], str4[20];
+	char* string1 = "This is a pointer of char!";
+
+	printf("str1 is:%s\n", str1);
+    printf("str2 is:%s\n", str2);
+
+	gets(str3);
+	scanf("%s",str4);   
+
+	puts(string1);
+	puts(str3);
+	printf("str4 is:%s\n", str4);
+
+
+
+}
+*/
+/*折半查找法找出该数是数组中第几个元素的值。如果该数不在数组中，则输出“无此数”
+{
+	int i, j, k, num_to_find, mid, flag=0,a[15];
+	i= k = 0; 
+	j = 14;
+
+	for ( ; i < 15; i++)
+		scanf("%d", &a[i]);
+	scanf("%d", &num_to_find);
+	while (k <= j)
+	{
+		mid = (k + j) / 2;
+		if (a[mid] == num_to_find)
+		{
+			flag = 1;
+			printf("%d", mid+1);
+			break;
+		}
+		else
+		{
+			if (a[mid] < num_to_find)
+				k = mid + 1;
+			else
+				j = mid - 1;
+		}
+	}
+	if (flag==0)
+		printf("无此数");
+
+	return  0;
+
+}
+*/
+/*/输出一个杨辉三角形的前10行,每行两个数之间用'-'隔开
+{
+	int i, j;
+	int yanghui_triangle[10][10];
+	// create yanghui_triangle
+	yanghui_triangle[0][0] = 1;
+	for (i = 1; i < 10; i++)
+	{ 
+		for (j = 0; j <= i; j++)
+		{
+		  if ((j == 0) || (j == i))
+			yanghui_triangle[i][j] = 1;
+		  else
+			yanghui_triangle[i][j] = yanghui_triangle[i - 1][j - 1] + yanghui_triangle[i - 1][j];
+		}
+	}
+
+	//output 
+	for (i = 0; i <10; i++)
+	{
+		for (j = 0; j <=i; j++)
+		{
+			if (j == 0) 
+				printf("%d",yanghui_triangle[i][j]);
+			else
+				printf("-%d", yanghui_triangle[i][j]);
+		}
+		printf("\n");
+	}
+
+	return 0;
+}
+*/
+/*/将一个长度为5数组中的值按逆序（）重新存放
+{
+	int i, j, temp;
+	int a[SIZE];
+	// read-in SIZE numbers in array a
+	for (i = 0; i < SIZE; i++)
+		scanf("%d", &a[i]);
+	//pairwise exchange
+	for (i = 0,j = SIZE-1; i < j; i++,j--)
+	{
+		
+		temp = a[i];
+		a[i] = a[j];
+		a[j] = temp;
+	}
+
+	for (i = 0; i < SIZE-1; i++)
+		printf("%d ", a[i]);
+	printf("%d", a[SIZE - 1]);
+
+	return 0;
+
+}
+//*/
+/*/用任意排序法， 对10个整数的一维数组进行从小到大排序
+{
+	int i, j, min_pos, temp;
+	int a[10];
+	// read in 10 numbers in array a
+	for (i = 0; i < 10; i++)
+		scanf("%d", &a[i]);
+	//sorting the array by selection-sorting method
+    for(i=0;i<9;i++)
+	{
+	   min_pos = i;
+	   for (j = 9; j > i; j--)
+		   if (a[j] < a[min_pos])
+			   min_pos = j;
+
+	   temp = a[i];
+	   a[i] = a[min_pos];
+	   a[min_pos] = temp; 
+	}
+
+	for (i = 0; i < 9; i++)
+		printf("%d ", a[i]);
+	printf("%d", a[9]);
+
+	return 0;
+}  
+*/
+/*求一个3 * 3的整型矩阵主对角线元素之和
+{
+	int i, j,sum=0;
+	int matrix[3][3];
+
+	for (i = 0; i < 3; i++)
+		for (j = 0; j < 3; j++)
+			scanf("%d", &matrix[i][j]);
+
+	for (i = 0; i < 3; i++)
+		for (j = 0; j < 3; j++)
+			if (i == j)
+				sum += matrix[i][j];
+	printf("%d", sum);
+
+	return 0;
+
+}
+*/
+/*CHAPTER 3,4,5 SELECTION/LOOP- STRUCTURES*/
+
+/*/matrix mulitiplication
+main()
+{
+	int i, j, k;
+	int A[M_DIM][N_DIM] = { {1,2,3,4,5} ,{6,7,8,9,10},{11,12,13,14,15} };
+	int B[N_DIM][P_DIM]= { {1,2,3,4} ,{5,6,7,8},{9,10,11,12},{13,14,15,16},{17,18,19,20} };
+	int C[M_DIM][P_DIM] = {0};
+	printf("You have got matrix A with %d*%d, and matrix B with %d*%d\n", M_DIM, N_DIM, N_DIM, P_DIM);
+	printf("The outcome of matrix C is:\n");
+	for (i = 0; i < M_DIM; i++)
+		for (j = 0; j < P_DIM; j++)
+			for (k = 0; k < N_DIM; k++)
+				C[i][j] += A[i][k] * B[k][j];
+
+	for (i = 0; i < M_DIM; i++)
+	{
+		for (j = 0; j < P_DIM; j++)
+			printf("%d\t", C[i][j]);
+		printf("\n");
+	}
+
+	//return 0;
+}
+*/
+/*/the inner nest of loop structure (output square of i =[1,10])
+{	int i,square;
+	for (i=1; i <= 10; i++)
+	{
+		square = i * i;
+		printf("%d\t", square);
+
+		if ((i % 5) == 0)
+			printf("\n");
+	}
+
+	return 0;
+}
+*/
+/*/ output a matrix with 4 by 5 (20 elements)
+{
+	int i,j;
+
+	for (i = 1; i <=4; i++)
+	{
+		for (j = 1; j <= 5; j++)
+		{
+		   // if (i == 3 && j == 1) break;
+			if (i == 3 && j == 2) continue;
+			printf("%d\t", i * j);
+
+		}
+		printf("\n");
+
+	}
+	return 0;
+
+
+}
+*/
+/*leap year method 2
+{
+	int year;
+
+	printf(" input a year please!\n");
+	scanf("%d", &year);
+
+
+	if (year % 4 == 0)
+	{
+		if (year % 100 == 0)
+		{
+			if (year % 400 == 0)
+				printf("%d is a leap year!", year);
+			else
+				printf("%d is NOT a leap year!", year);
+		}
+		else
+			printf("%d is a leap year!", year);
+
+	}
+	else
+		printf("%d is NOT a leap year!", year);
+
+	return 0;
+}
+*/
+/* leap year method1
+{
+	int year;
+
+	printf(" input a year please!\n");
+	scanf("%d", & year);
+	if (((year % 4 == 0) && (year % 100 != 0)) || year % 400 == 0)
+		printf("%d is a leap year!", year);
+	else
+		printf("%d is NOT a leap year!", year);
+
+	return 0;
+}
+*/
+/* 猴子吃桃问题
+{
+	int i, total=1;
+	for (i = 9; i >= 1; i--)
+	{
+		total = (total + 1) * 2;
+		printf("%d\n", total);
+	}
+	return 0;
+}
+*/
+/*求方程x1+x2+x3+x4=30 ，满足x1>=2,x2>=0,x3>=-5,x4>=8的整数解?(穷举法)
+
+{
+	int x1, x2, x3, x4,count=0;
+	for (x1 = 2;x1<=27; x1++)
+		for (x2 = 0;x2<=25; x2++)
+			for (x3 = -5;x3<=20; x3++)
+				for (x4 = 8;x4<=33; x4++)
+					if ((x1 + x2 + x3 + x4) == 30)
+						count++;
+	printf("%d", count);
+
+}
+*/
+/*/10个评委为参赛选手打分，分数为1到100分，选手最后的得分为去掉一个最高分和去掉一个最低分
+//其余8个分数的平均分,输出选手的最后得分(保留2位小数)。
+main()
+{
+	int i, max, min;
+	int referee_score[10];
+	float score=0.0;
+	for (i = 0; i < 10; i++)
+	{
+		scanf("%d", &referee_score[i]);
+		score += referee_score[i];
+	}
+	max = min = referee_score[0];
+	for (i = 1; i < 10; i++)
+	{
+		if (referee_score[i] < min )
+		   min = referee_score[i];
+		if (referee_score[i] > max)
+		   max = referee_score[i];
+	}
+	score = (score - max - min) / 8;
+	printf("%.2f", score);
+
+	return 0;
+}
+*/
+/*/读取一个在0和1000之间的整数，求该整数的各位数字之和。
+{
+	int a, sum;
+	int x, y, z, r;
+	scanf("%d", &a);
+
+	x = a / 1000;
+	y = (a - x * 1000) / 100;
+	z = (a - x * 1000 - y * 100) / 10;
+	r = a % 10;
+	sum = x + y + z + r;
+
+	printf("%d", sum);
+
+	return 0;
+}
+*/
+/*/球从100m高度自由落下，每次反弹原高度的一半，再落下，再反弹。
+//求第10次落地时，共经过多少米？第10次反弹多高？(均保留2位小数)
+{
+	int drop_ground_time;
+	float total_distance=100.0, bounce_level=50.0;
+	for (drop_ground_time = 2; drop_ground_time <=10; drop_ground_time++)
+	{
+		total_distance += bounce_level * 2;
+		bounce_level /= 2;
+		//printf("第%d次落地时共经过%.2f米\t", drop_ground_time, total_distance);
+		//printf("第%d次反弹%.2f米\n", drop_ground_time, bounce_level);
+
+	}
+	printf("第10次落地时共经过%.2f米\n", total_distance);
+	printf("第10次反弹%.2f米\n", bounce_level);
+
+	return 0;
+}
+*/
+/*/ narcissus number (水仙花数)
+{
+	int i,j,k,x,y,z,temp;
+	int a[10];
+	//printf("input a 3-digital number, please!\n");
+	//scanf("%d", &a);
+	j = 0;
+	for (i = 100; i <= 999; i++)
+	{
+		x = i / 100;
+		y = (i- x * 100)/10;
+		z = i % 10;
+		temp = pow(x, 3)+ pow(y, 3)+ pow(z, 3);
+		if (i == temp)
+		{
+			a[j] = i;
+			j++;
+		}
+	}
+	for(k=0;k<j-1;k++)
+	printf("%d ",a[k]);
+	printf("%d", a[j - 1]);
+
+	return 0;
+}
+*/
+/*/ gcd (a,b) and lcm(a,b)
+{
+	int a, b,a_o,b_o,temp1,temp2,gcd,lcm;
+	printf("input 2 integer a and b that you want to compute gcd and lcm please!\n");
+	scanf("%d %d", &a, &b);
+	a_o = a;
+	b_o = b;
+	temp2 = a * b;
+	while (b > 0)
+	{
+		temp1 = a % b;
+		a = b;
+		b = temp1;
+	}
+	gcd = a;
+	lcm = temp2 / gcd;
+	printf("gcd(%d,%d)=%d  lcm(%d,%d)=%d",a_o,b_o,gcd,a_o,b_o,lcm);
+
+	return 0;
+}
+*/
+/* hello world program!
+{
+	printf("This is my 1st C program!\n");
+	return 0;
+}
+*/
+/* scanf(),printf() function introduction
+{
+	int a;
+	float b;
+	char c;
+	printf("Please input string for variable a,b,c:\n");
+	scanf("%d %f %c", &a, &b, &c);
+	printf("%d\n%.2lf\n%c\n", a, b, c);
+
+	return 0;
+}
+*/
+/* sum of series (while statements)
+{
+int sign = 1;
+	double deno = 2.0, sum = 1.0, term;    // 定义deno,sum,term为双精度变量
+	while (deno <= 100)
+	{
+		sign = -sign;
+		term = sign / deno;
+		sum = sum + term;
+		deno = deno + 1;
+	}
+	printf("%f\n", sum);
+	return 0;
+}
+*/
+/* depart 3 parts of a float number
+{
+	int intpart=0;
+	char sign;
+	float num = 0.0 , fracpart = 0.0;
+	scanf("%f",&num);
+	intpart = (int)(num);
+	if (num < 0)sign = '-';
+	else sign = '+';
+	fracpart = num - intpart;
+	//scanf("%d%f", &intpart, &fracpart);
+	//if (intpart < 0)sign = '-';
+	//else sign = '+';
+	printf("sign:%c\n", sign);
+	printf("integral part:%d\n", abs(intpart));
+	printf("decimal fraction part:%.3f\n", fabs(fracpart));
+	return 0;
+}
+//*/
+/*
+{
+float x, y;
+scanf("%f %f", &x, &y);
+printf("%9.3f\n%-9.3f\n", x, y);
+return 0;
+}
+*/
+/* count aera of a triangle!
+{
+	int a, b, c;
+	float x, s;
+	scanf("%d %d %d", &a, &b, &c);
+	if (((a + b)<c )|| ((a + c)<b) || ((b + c)<a))
+		printf("不能构成三角形\n");
+	else
+	{
+		x = (a + b + c) / 2;
+		s = sqrt(x * (x - a) * (x - b) * (x - c));
+		printf("%.3f\n",s );
+	}
+	return 0;
+}
+*/
+/* find max number from 3 input numbers
+{
+	int a, b, c, max;
+
+	scanf("%d%d%d", &a, &b, &c);
+
+	max = (a > b)? a : b;
+
+	if (c > max)
+		max = c;
+	printf("%d\n", max);
+
+	return 0;
+}
+*/
+/* segment function
+{
+  int x,y;
+
+  scanf("%d", &x);
+  if(x>=10)
+	 y=3*x-11;
+  else
+	 if(x>=1)
+		y=2*x-1;
+	 else
+		y=x;
+
+   printf("%d\n",y);
+
+   return 0;
+}
+*/
+/* grade the score!
+{
+	int x;
+	scanf("%d", &x);
+	if (x >= 90)
+		putchar('A');
+	else if(x>=80)
+		   putchar('B');
+		 else if (x >= 70)
+			   putchar('C');
+		      else if (x >= 60)
+				    putchar('D');
+			       else 
+				      putchar('E');
+
+			  return 0;
+
+}
+*/
+/* sort 3 number a,b,c , where makes  a<b<c   
+{
+int a, b, c,temp;
+printf("input a,b,c to sorting with space to seperate!\n");
+scanf("%d %d %d", &a, &b, &c);
+printf("a, b, c before sorting:%d %d %d\n", a, b, c);
+
+if (a > b)
+   {
+	temp = a;
+	a = b;
+	b = temp;
+	}
+if(b > c)
+   {
+	temp = b;
+	b = c;
+	c = temp;
+	}
+if (a > b)
+{
+	temp = a;
+	a = b;
+	b = temp;
+}
+
+printf("a, b, c after sorting:%d %d %d\n", a, b, c);
+
+return 0;
+}
+*/
+/* to decide XXXX a leap year?
+{
+int year;
+scanf("%d", &year);
+
+if (!(year % 4) && (year % 100))
+	printf("%d is a leap year", year);
+else if (!(year % 400))
+   printf("%d is a leap year", year);
+else
+   printf("%d is not a leap year", year);
+
+return 0;
+}
+*/
+/* countdown  numbers
+{
+	int a1, a2, a3, a4, a5;
+	scanf("%d%d%d%d%d", &a1, &a2, &a3, &a4, &a5);
+	if (!((a1 > a2) && (a2 > a3) && (a3 > a4) && (a4 > a5)))
+		printf("YES");
+	else
+		printf("NO");
+
+	return 0;
+}
+*/
+/* roots of quadrable equation
+{
+	int a, b, c;
+	double a2, delta, x1, x2;
+	scanf("%d%d%d", &a, &b, &c);
+	delta = (b * b - 4 * a * c);
+	if (delta < 0)
+		printf("方程没有实根\n");
+	else
+	{
+		a2 = -b / (2.0 * a);
+		x1 = a2 + sqrt(delta) / (2.0 * a);
+		x2 = a2 - sqrt(delta) / (2.0 * a);
+		printf("%.2f  %.2f", x1, x2);
+	}
+	return 0;
+}
+
+*/ 
